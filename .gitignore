@@ -1,0 +1,8 @@
+# ignore all preprocessed files
+*.p
+
+# ignore all assembly files
+*.s
+
+# ignore all object files
+*.o
