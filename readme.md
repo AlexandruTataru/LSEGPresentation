@@ -1,8 +1,30 @@
-### From Source to Executable
-#### About the author
-My name is Tataru Alexandru Flavian, I am a software engineer for 12 years and an LSEG employee for over 3 years.
+# From Source to Executable
 
 #### Preprocessing
+```mermaid
+gantt
+
+section Compiler
+Preprocessing :crit, pre, 2022-03-21, 10m
+Compilation :active, comp, after pre, 10m
+Assembly :active, assm, after comp, 10m
+
+section Linker
+Linking :active, link, after assm, 10m
+```
+
+To get the proprocessed output of the above code we have to do the following
+```zsh
+$ g++ -E main.cpp
+```
+
+<table>
+<tr>
+<th>User Code</th>
+<th>Preprocessed</th>
+</tr>
+<tr>
+<td>
 
 ```c++
 #define POSITIVE_ERRORS
@@ -39,14 +61,13 @@ int main(int argc, char* argv[]) {
     #ifndef PROCESS_THE_ENTIRE_FILE
         #error "Flag set to not process entire file for demo purpose"
     #endif
-    return RET_VAL_OK;
+    return __TIME__;
 }
 ```
-To get the proprocessed output of the above code we have to do the following
-```zsh
-$ g++ -E main.cpp
-```
-Which will result in the blow preprocessed file
+
+</td>
+<td>
+
 ```c++
 # 1 "main.cpp"
 # 1 "<built-in>" 1
@@ -79,25 +100,55 @@ int main(int argc, char* argv[]) {
 
 
 
-    return 0;
+    return "14:08:18";
 }
 ```
+
+</td>
+</tr>
+</table>
+
 #### Compilation
+```mermaid
+gantt
+
+section Compiler
+Preprocessing :active, pre, 2022-03-21, 10m
+Compilation :crit, comp, after pre, 10m
+Assembly :active, assm, after comp, 10m
+
+section Linker
+Linking :active, link, after assm, 10m
+```
+
+
+
 #### Assembly
+```mermaid
+gantt
+
+section Compiler
+Preprocessing :active, pre, 2022-03-21, 10m
+Compilation :active, comp, after pre, 10m
+Assembly :crit, assm, after comp, 10m
+
+section Linker
+Linking :active, link, after assm, 10m
+```
+#### Linking
+```mermaid
+gantt
+
+section Compiler
+Preprocessing :active, pre, 2022-03-21, 10m
+Compilation :active, comp, after pre, 10m
+Assembly :active, assm, after comp, 10m
+
+section Linker
+Linking :crit, link, after assm, 10m
+```
 #### Static libraries
 #### Dynamic libraries
 #### Makefiles
 #### CMake
 #### Other resource
-
-1. Preprocessing -> preprocessed file
-2. Compilation -> machine code
-3. Code assembly -> object file
-4. Static libraries
-5. Dynamic libraries
-6. Makefiles
-7. CMake
-8. Online tools
-
-preprocessor, compiler, assemble, linker
-preprocessed, assembly code, object file, executable

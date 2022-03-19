@@ -17,5 +17,5 @@ int main(int argc, char* argv[]) {
     #ifndef PROCESS_THE_ENTIRE_FILE
         #error "Flag set to not process entire file for demo purpose"
     #endif
-    return RET_VAL_OK;
+    return __TIME__;
 }
