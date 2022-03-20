@@ -13,6 +13,7 @@ section Linker
 Linking :active, link, after assm, 10m
 ```
 
+The result of preprocessing is a single file which is then passed to the actual compiler.
 To get the proprocessed output of the entry file we have to do the following
 ```bash
 $ g++ -E main.cpp
@@ -528,3 +529,7 @@ target_link_libraries(bin_dynamic CalculatorDynamic)
 ```
 
 #### Other resource
+[Godbolt](https://godbolt.org/) - `A very nice tool to look at machine code`
+[CMake Documentation](https://cmake.org/documentation/) - `Lots of IDE's support CMake as a project type so there is a lot of value in learning it and integrating it even in your simplest projects`
+[Using LD, the GNU linker](https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_mono/ld.html) - `A useful reference for in-depth understanding of the linker`
+[Phases of translation](https://en.cppreference.com/w/cpp/language/translation_phases) - `Overview of all translation phases`

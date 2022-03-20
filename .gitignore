@@ -12,3 +12,6 @@
 
 # ignore all dynamic libraries files
 *.so
+
+# ignore all default build binaries
+a.out
