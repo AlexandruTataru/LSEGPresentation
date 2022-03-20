@@ -6,3 +6,9 @@
 
 # ignore all object files
 *.o
+
+# ignore all static libraries files
+*.a
+
+# ignore all dynamic libraries files
+*.so

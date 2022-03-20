@@ -334,15 +334,197 @@ ld: symbol(s) not found for architecture arm64
 
 
 #### Static libraries
+A static library is just a collection of object files archived for easier integration and storage or modularization.
+For this section we will be using the below files
 
+```c++
+// library.hpp
+class Calculator
+{
+    bool working;
+    unsigned int currentResult;
+    public:
+        Calculator();
+        void turnOn();
+        void add(unsigned short);
+        int getResult();
+};
+```
+
+```c++
+// library.cpp
+#include "library.hpp"
+
+Calculator::Calculator() : working(false), currentResult(0) {}
+
+void Calculator::turnOn()
+{
+    working = true;
+}
+
+void Calculator::add(unsigned short number)
+{
+    if (working)
+    {
+        currentResult += number;
+    }
+}
+
+int Calculator::getResult()
+{
+    return working ? currentResult : -1;
+}
+```
+
+```c++
+// main.cpp
+#include "library.hpp"
+
+int main()
+{
+    Calculator c;
+    c.turnOn();
+    c.add(5);
+    c.add(4);
+    return c.getResult();
+}
+```
+
+To create the library and have it linked we will use the following commands
+```bash
+$ ls
+library.cpp     library.hpp     main.cpp
+$ g++ -c -O3 library.cpp
+$ ls
+library.cpp     library.hpp     library.o     main.cpp
+$ g++ -c -O3 main.cpp
+$ ls
+library.cpp     library.hpp     library.o       main.cpp        main.o
+$ ar cvr libcalc.a library.o
+a - library.o
+$ ls
+libcalc.a       library.cpp     library.hpp     library.o       main.cpp        main.o
+$ g++ main.o -I. -L. -lcalc
+$ ./a.out
+$ echo $?
+9
+```
 
 #### Dynamic libraries
+We can start of by using the exact same code from the static library chapter.
+Only that this time we will create a shared library instead of a static one. Here are the commands;
+```bash
+$ g++ -c -O3 library.cpp
+$ g++ -c -O3 main.cpp
+$ g++ -shared -o libcalc.so library.o
+$ g++ main.o -I. -L. -lcalc
+$2 ./a.out
+9
+```
 
+The main different between this process and the static one asside from the creating of the library is that if we do changes to the library we do not need to recreate the executable, we only need to recreate the dynamic library.
+
+<table>
+<tr>
+<th>Binary built using static library</th>
+<th>Binary build using dynamic library</th>
+</tr>
+<tr>
+<td>
+
+```c++
+0000000100003f80 T __ZN10Calculator3addEt
+0000000100003f74 T __ZN10Calculator6turnOnEv
+0000000100003f98 T __ZN10Calculator9getResultEv
+0000000100003f68 T __ZN10CalculatorC1Ev
+0000000100003f5c T __ZN10CalculatorC2Ev
+0000000100000000 T __mh_execute_header
+0000000100003f14 T _main
+```
+
+</td>
+<td>
+
+```c++
+                 U __ZN10Calculator3addEt
+                 U __ZN10Calculator6turnOnEv
+                 U __ZN10Calculator9getResultEv
+                 U __ZN10CalculatorC1Ev
+0000000100000000 T __mh_execute_header
+0000000100003f40 T _main
+```
+
+</td>
+</tr>
+</table>
 
 #### Makefiles
+Building large project with manual commands is time consuming and grouping them in a script is error prone so to make things automatic Makefile system was created.
+Below is an example of such a `makefile`
+```makefile
+CC=g++
 
+IDIR=.
+CFLAGS=-I$(IDIR)
+
+%.o: %.cpp
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+clean:
+	rm -rf ./*.o ./*.so ./*.a
+
+lib_static: library.o
+	ar crv libcalc.a library.o 
+
+lib_dynamic: library.o
+	$(CC) -shared -o libcalc.so library.o
+
+all_static: lib_static main.o
+	$(CC) main.o -I. -L. -lcalc -o bin_static
+
+all_dynamic: lib_dynamic main.o
+	$(CC) main.o -I. -L. -lcalc -o bin_dynamic
+```
+
+Here are some of the commands you can run on this file
+```bash
+$ make clean
+rm -rf ./*.o ./*.so ./*.a ./a.out ./bin_*
+$ make all_static
+g++ -c -o library.o library.cpp -I.
+ar crv libcalc.a library.o 
+a - library.o
+g++ -c -o main.o main.cpp -I.
+g++ main.o -I. -L. -lcalc -o bin_static
+$ make all_dynamic
+g++ -shared -o libcalc.so library.o
+g++ main.o -I. -L. -lcalc -o bin_dynamic
+$ ./bin_static 
+$ echo $?
+19
+$ ./bin_dynamic 
+$ echo $?
+19
+```
 
 #### CMake
+Makefile is a build system created for UNIX based systems. So what happens when you want to create a C++ project and want to deploy it on all kinds of operting systems and arhitctures?
+Whell the answer for this is a higher level abstraction build system which is able to generate the necessary project structure specific to your deploy system.
 
+A `CMakeLists.txt` file doing the exact same thing as the Makefile created above can be seen below:
+```cmake
+cmake_minimum_required(VERSION 3.10)
+
+project(LSEGPresentation)
+
+add_library(CalculatorStatic STATIC library.cpp)
+add_library(CalculatorDynamic SHARED library.cpp)
+
+add_executable(bin_static main.cpp)
+add_executable(bin_dynamic main.cpp)
+
+target_link_libraries(bin_static CalculatorStatic)
+target_link_libraries(bin_dynamic CalculatorDynamic)
+```
 
 #### Other resource
